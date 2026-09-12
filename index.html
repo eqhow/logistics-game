@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ЛОГИСТИКА — Управленческая игра</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ==================== ГЛАВНОЕ МЕНЮ ==================== -->
+  <div id="main-menu" class="screen active">
+    <div class="menu-content">
+      <div class="menu-title-block">
+        <h1 class="game-title">ЛОГИСТИКА</h1>
+        <p class="game-subtitle">УПРАВЛЕНЧЕСКАЯ ИГРА</p>
+        <p class="game-tagline">ПЛАНИРУЙ. УПРАВЛЯЙ. ДОСТАВЛЯЙ.</p>
+      </div>
+      <div class="menu-buttons">
+        <button class="btn btn-primary" onclick="UI.showSetup()">НОВАЯ ИГРА</button>
+        <button class="btn btn-secondary" onclick="UI.loadGame()">ПРОДОЛЖИТЬ</button>
+        <button class="btn btn-secondary" onclick="UI.showRules()">ПРАВИЛА</button>
+        <button class="btn btn-secondary" onclick="UI.showSettings()">НАСТРОЙКИ</button>
+      </div>
+      <div class="menu-decoration">
+        <div class="decoration-line"></div>
+        <svg class="decoration-icon" viewBox="0 0 48 48" width="32" height="32">
+          <rect x="4" y="14" width="40" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="16" cy="34" r="3" fill="currentColor"/>
+          <circle cx="32" cy="34" r="3" fill="currentColor"/>
+          <rect x="12" y="10" width="8" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="28" y="10" width="8" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== НАСТРОЙКИ ИГРЫ ==================== -->
+  <div id="setup-screen" class="screen">
+    <div class="setup-content">
+      <h2 class="setup-title">НАСТРОЙКА ИГРЫ</h2>
+      <div class="setup-section">
+        <label class="setup-label">Количество игроков</label>
+        <div class="player-count-selector">
+          <button class="btn btn-small" onclick="UI.selectPlayerCount(2)" data-count="2">2</button>
+          <button class="btn btn-small" onclick="UI.selectPlayerCount(3)" data-count="3">3</button>
+          <button class="btn btn-small" onclick="UI.selectPlayerCount(4)" data-count="4">4</button>
+        </div>
+      </div>
+      <div class="setup-section">
+        <label class="setup-label">Тип игры</label>
+        <div class="mode-selector">
+          <button class="btn btn-small active" onclick="UI.selectMode('pvp')" data-mode="pvp">Игрок против игроков</button>
+          <button class="btn btn-small" onclick="UI.selectMode('pve')" data-mode="pve">Игрок против компьютера</button>
+        </div>
+      </div>
+      <div id="player-names" class="setup-section">
+        <label class="setup-label">Имена игроков</label>
+        <div class="name-inputs"></div>
+      </div>
+      <div class="setup-actions">
+        <button class="btn btn-primary" onclick="UI.startGame()">НАЧАТЬ ИГРУ</button>
+        <button class="btn btn-secondary" onclick="UI.showMenu()">НАЗАД</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ИГРОВОЙ ЭКРАН ==================== -->
+  <div id="game-screen" class="screen">
+    <div class="game-layout">
+      <!-- Игровое поле -->
+      <div class="board-container">
+        <div id="board" class="board">
+          <!-- Клетки и центр будут сгенерированы JS -->
+        </div>
+      </div>
+
+      <!-- Правая панель -->
+      <div class="right-panel">
+        <!-- Информация о текущем игроке -->
+        <div id="current-player-panel" class="player-panel">
+          <h3 id="current-player-name" class="player-name">ИГРОК</h3>
+          <div class="player-stats">
+            <div class="stat-row">
+              <span class="stat-icon stat-money">💰</span>
+              <span class="stat-label">Капитал:</span>
+              <span id="stat-money" class="stat-value">500 000 ₽</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-icon stat-rep">⭐</span>
+              <span class="stat-label">Репутация:</span>
+              <span id="stat-reputation" class="stat-value">50</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-icon stat-orders">📦</span>
+              <span class="stat-label">Заказы:</span>
+              <span id="stat-orders" class="stat-value">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-icon stat-employees">👥</span>
+              <span class="stat-label">Сотрудники:</span>
+              <span id="stat-employees" class="stat-value">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-icon stat-properties">🏢</span>
+              <span class="stat-label">Объекты:</span>
+              <span id="stat-properties" class="stat-value">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-icon stat-risk">⚠️</span>
+              <span class="stat-label">Риск:</span>
+              <span id="stat-risk" class="stat-value">0%</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-icon stat-debt">💳</span>
+              <span class="stat-label">Долг:</span>
+              <span id="stat-debt" class="stat-value">0 ₽</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Информация о раунде -->
+        <div class="round-info">
+          <span>Раунд:</span>
+          <span id="round-display" class="round-number">1 / 20</span>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="action-buttons">
+          <button id="btn-roll" class="btn btn-primary btn-action" onclick="Game.rollDice()">
+            <span class="dice-icon">🎲</span> БРОСИТЬ КУБИКИ
+          </button>
+          <button id="btn-end-turn" class="btn btn-secondary btn-action" onclick="Game.endTurn()" style="display:none">
+            ЗАВЕРШИТЬ ХОД
+          </button>
+          <button id="btn-employees" class="btn btn-secondary btn-action" onclick="UI.showEmployeeModal()">
+            👥 СОТРУДНИКИ
+          </button>
+          <button id="btn-bank" class="btn btn-secondary btn-action" onclick="UI.showBankModal()">
+            💳 БАНК / КРЕДИТ
+          </button>
+          <button class="btn btn-secondary btn-action" onclick="Game.saveGame()">
+            💾 СОХРАНИТЬ
+          </button>
+        </div>
+
+        <!-- Бросок кубиков -->
+        <div id="dice-area" class="dice-area">
+          <div class="dice-result">ВЫПАЛО: <span id="dice-total">0</span></div>
+          <div class="dice-box">
+            <div id="dice-1" class="dice">⚀</div>
+            <div id="dice-2" class="dice">⚀</div>
+          </div>
+          <div id="move-message" class="move-message"></div>
+        </div>
+
+        <!-- Другие игроки -->
+        <div class="other-players">
+          <h4 class="other-players-title">ДРУГИЕ ИГРОКИ</h4>
+          <div id="other-players-list" class="other-players-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== МОДАЛЬНОЕ ОКНО ==================== -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div id="modal-content" class="modal-content">
+      <!-- Контент заполняется динамически -->
+    </div>
+  </div>
+
+  <!-- ==================== МОДАЛ ПРАВИЛ ==================== -->
+  <div id="rules-modal" class="modal-overlay">
+    <div class="modal-content modal-rules">
+      <h2 class="modal-title">ПРАВИЛА ИГРЫ</h2>
+      <div class="rules-scroll">
+        <div class="rules-section">
+          <h3>ЦЕЛЬ ИГРЫ</h3>
+          <p>Станьте лучшей логистической компанией! Развивайте инфраструктуру, выполняйте заказы, управляйте ресурсами и обгоняйте конкурентов. Побеждает игрок с наибольшим итоговым рейтингом после 20 раундов.</p>
+        </div>
+        <div class="rules-section">
+          <h3>ПОРЯДОК ХОДА</h3>
+          <p>Игроки ходят по очереди по часовой стрелке. В свой ход нажмите «Бросить кубики», переместите фишку на выпавшее количество клеток и выполните действие клетки, на которую попали.</p>
+        </div>
+        <div class="rules-section">
+          <h3>ПОКУПКА ОБЪЕКТОВ</h3>
+          <p>Если вы попали на свободный логистический объект (Склад, Распределительный центр, Хаб, Терминал, Автопарк, Порт, Аэропорт) — вы можете его купить. Объекты приносят доход каждый ход. Объекты можно улучшать до 3 уровня — доход растёт.</p>
+        </div>
+        <div class="rules-section">
+          <h3>ТРАНСПОРТ</h3>
+          <p>Клетки транспорта (Автомобильные, Железная дорога, Морские, Авиа) можно приобрести. Владение транспортом даёт доход и снижает стоимость выполнения заказов.</p>
+        </div>
+        <div class="rules-section">
+          <h3>ЗАКАЗЫ</h3>
+          <p>Попадая на клетку «Заказ» или «Контракт», вы получаете предложение выполнить заказ. У каждого заказа есть маршрут, стоимость, доход, срок и риск. Успешное выполнение приносит деньги и репутацию. Просрочка — штраф.</p>
+        </div>
+        <div class="rules-section">
+          <h3>СОБЫТИЯ</h3>
+          <p>Случайные события (Риск, Рынок, Событие) могут принести как прибыль, так и убытки. Будьте готовы к неожиданностям!</p>
+        </div>
+        <div class="rules-section">
+          <h3>РЕПУТАЦИЯ</h3>
+          <p>Репутация (0–100) влияет на доступные заказы. Начальное значение — 50. Успешные заказы повышают репутацию, просрочки и отмены — понижают. Высокая репутация открывает более прибыльные контракты.</p>
+        </div>
+        <div class="rules-section">
+          <h3>СОТРУДНИКИ</h3>
+          <p>Вы можете нанимать сотрудников, которые дают бонусы: логист снижает стоимость маршрутов, механик — стоимость ремонта, аналитик — риск, и так далее. Каждый сотрудник получает зарплату каждый ход.</p>
+        </div>
+        <div class="rules-section">
+          <h3>КРЕДИТЫ</h3>
+          <p>В банке можно взять кредит. Сумма — 100 000 ₽, срок — 5 ходов, возврат — 120 000 ₽. Кредит поможет в трудной ситуации, но увеличит финансовую нагрузку.</p>
+        </div>
+        <div class="rules-section">
+          <h3>УСЛОВИЯ ПОБЕДЫ</h3>
+          <p>После 20 раундов игра заканчивается. Итоговый рейтинг учитывает: деньги, стоимость активов, репутацию, количество выполненных заказов, уровень инфраструктуры и долги. Победитель получает звание «Лучшая логистическая компания».</p>
+        </div>
+      </div>
+      <button class="btn btn-primary modal-close-btn" onclick="UI.closeRules()">ПОНЯТНО</button>
+    </div>
+  </div>
+
+  <!-- ==================== МОДАЛ НАСТРОЕК ==================== -->
+  <div id="settings-modal" class="modal-overlay">
+    <div class="modal-content modal-settings">
+      <h2 class="modal-title">НАСТРОЙКИ</h2>
+      <div class="settings-section">
+        <label class="settings-label">
+          <input type="checkbox" id="sound-toggle" checked onchange="UI.toggleSound()">
+          ЗВУК ВКЛ / ВЫКЛ
+        </label>
+      </div>
+      <div class="settings-section">
+        <label class="settings-label">Скорость анимации</label>
+        <div class="speed-selector">
+          <button class="btn btn-small" onclick="UI.setAnimSpeed('slow')">Медленная</button>
+          <button class="btn btn-small active" onclick="UI.setAnimSpeed('normal')">Нормальная</button>
+          <button class="btn btn-small" onclick="UI.setAnimSpeed('fast')">Быстрая</button>
+        </div>
+      </div>
+      <button class="btn btn-primary modal-close-btn" onclick="UI.closeSettings()">ГОТОВО</button>
+    </div>
+  </div>
+
+  <!-- ==================== МОДАЛ ПОБЕДЫ ==================== -->
+  <div id="game-over-modal" class="modal-overlay">
+    <div class="modal-content modal-game-over">
+      <h2 class="modal-title game-over-title">ИГРА ОКОНЧЕНА</h2>
+      <p id="winner-text" class="winner-text"></p>
+      <div id="final-stats" class="final-stats"></div>
+      <div class="game-over-actions">
+        <button class="btn btn-primary" onclick="UI.showMenu()">ГЛАВНОЕ МЕНЮ</button>
+        <button class="btn btn-secondary" onclick="UI.showSetup()">НОВАЯ ИГРА</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
